@@ -1,0 +1,37 @@
+/* 龍魂 · 浏览器史官 v2.1 — 样式 */
+:root { --bg: #080808; --gold: #C9A84C; --gold-dim: #6b5a2c; --green: #4CAF50; --red: #E53935; --orange: #FF9800; --text: #C9A84C; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 420px; min-height: 500px; background: var(--bg); color: var(--text); font-family: -apple-system, 'Noto Sans SC', sans-serif; font-size: 14px; }
+#app { padding: 16px; }
+header { text-align: center; padding-bottom: 12px; border-bottom: 1px solid rgba(201,168,76,0.15); margin-bottom: 16px; }
+header h1 { font-size: 1.1rem; letter-spacing: 0.12em; color: var(--gold); }
+.version { font-size: 0.7rem; color: var(--gold-dim); letter-spacing: 0.08em; }
+h2 { font-size: 0.9rem; color: var(--gold); margin-bottom: 8px; letter-spacing: 0.1em; }
+section { margin-bottom: 16px; padding: 12px; border: 1px solid rgba(201,168,76,0.1); background: rgba(201,168,76,0.02); }
+#defense-indicator { font-size: 0.82rem; padding: 8px; border-radius: 4px; margin-bottom: 8px; }
+#defense-indicator.green { background: rgba(76,175,80,0.1); color: var(--green); border: 1px solid rgba(76,175,80,0.3); }
+#defense-indicator.red { background: rgba(229,57,53,0.1); color: var(--red); border: 1px solid rgba(229,57,53,0.3); }
+#defense-indicator.offline { background: rgba(255,152,0,0.1); color: var(--orange); border: 1px solid rgba(255,152,0,0.3); }
+#defense-walls { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.wall-item { font-size: 0.72rem; padding: 4px 8px; border-radius: 3px; }
+.wall-item.green { background: rgba(76,175,80,0.08); border: 1px solid rgba(76,175,80,0.2); }
+.wall-item.red { background: rgba(229,57,53,0.08); border: 1px solid rgba(229,57,53,0.2); }
+.scan-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+button { padding: 6px 14px; border: 1px solid var(--gold); background: transparent; color: var(--gold); cursor: pointer; font-size: 0.8rem; letter-spacing: 0.06em; transition: all 0.2s; }
+button:hover { background: rgba(201,168,76,0.12); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+#scan-progress { margin-top: 8px; }
+.progress-bar { height: 4px; background: rgba(201,168,76,0.1); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--gold); width: 0%; transition: width 0.3s ease; }
+.progress-text { font-size: 0.68rem; color: var(--gold-dim); margin-top: 4px; display: inline-block; }
+.hidden { display: none; }
+#category-grid { max-height: 240px; overflow-y: auto; }
+.cat-item { display: flex; align-items: center; padding: 4px 0; border-bottom: 1px solid rgba(201,168,76,0.05); font-size: 0.76rem; gap: 6px; }
+.cat-icon { font-size: 0.9rem; }
+.cat-name { flex: 1; color: var(--gold); }
+.cat-count { color: var(--gold); opacity: 0.7; }
+.cat-pct { color: var(--gold-dim); font-size: 0.7rem; }
+#stats-summary { margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(201,168,76,0.1); font-size: 0.7rem; color: var(--gold-dim); text-align: center; }
+footer { text-align: center; padding-top: 8px; border-top: 1px solid rgba(201,168,76,0.1); }
+.footer-text { font-size: 0.65rem; color: var(--gold-dim); letter-spacing: 0.06em; }
+.note { font-size: 0.72rem; color: var(--gold-dim); text-align: center; padding: 8px; }
