@@ -1,1 +1,324 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>龍魂 · 瀏覽器史官 v2.1</title><link rel="stylesheet" href="styles.css"></head><body><div id="app"><header><h1>⚡ 龍魂 · 瀏覽器史官</h1><div class="version">v2.1 · 四道防线</div></header><section id="defense-panel"><h2>🛡️ 防线状态</h2><div id="defense-indicator" class="checking">...检测中</div><div id="defense-walls"></div></section><section id="scan-panel"><h2>📊 历史扫描</h2><div class="scan-controls"><button id="btn-scan">🔍 扫描全部历史</button><button id="btn-scan-today">📅 仅今天</button></div><div id="scan-progress" class="hidden"><div class="progress-bar"><div class="progress-fill"></div></div><span class="progress-text">0%</span></div></section><section id="result-panel"><h2>📈 分类结果</h2><div id="category-grid"></div><div id="stats-summary"></div></section><footer><div class="footer-text">数据主权归你 · 不传云端</div></footer></div><script src="classifier.js"></script><script src="popup.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=680">
+  <title>龍魂 · 浏览器史官</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <h1>⚡ 龍魂 · 浏览器史官</h1>
+    <span class="version">v2.0 · 本地运行 + 底座痕迹</span>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <select id="scan-days">
+      <option value="0">📅 全部历史</option>
+      <option value="7">最近 7 天</option>
+      <option value="30">最近 30 天</option>
+      <option value="90">最近 90 天</option>
+      <option value="180">最近 180 天</option>
+      <option value="365">最近 1 年</option>
+    </select>
+    <button id="btn-scan" class="btn btn-primary">🔍 开始扫描</button>
+    <button id="btn-export" class="btn btn-export" style="display:none">📥 导出JSON</button>
+  </div>
+
+  <!-- Scanning Progress -->
+  <div id="scanning-section">
+    <div class="progress-container">
+      <div id="progress-bar"></div>
+    </div>
+    <div id="progress-text">正在扫描中...</div>
+  </div>
+
+  <!-- Empty State -->
+  <div id="empty-state" class="empty-state">
+    <div class="icon">🏛️</div>
+    <p>数据主权归你，一切在本地。</p>
+    <p class="hint">点击「开始扫描」，读取并分类你的浏览器历史。<br>不传云端，不留后门。</p>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard">
+    <div id="scan-time">上次扫描: —</div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-value" id="stat-total">—</div>
+        <div class="stat-label">去重后网址数</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="stat-raw">—</div>
+        <div class="stat-label">原始记录数</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="stat-cats">—</div>
+        <div class="stat-label">分类类别数</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="overview">📊 分类概览</button>
+      <button class="tab-btn" data-tab="detail">📋 详细列表</button>
+      <button class="tab-btn" data-tab="trace">🖥️ 底座痕迹</button>
+      <button class="tab-btn" data-tab="defense">🛡️ 防御状态</button>
+      <button class="tab-btn" data-tab="about">🌎 关于</button>
+    </div>
+
+    <!-- Overview Tab -->
+    <div id="tab-overview" class="tab-content">
+      <div class="overview-content">
+        <div class="pie-section">
+          <div class="pie-chart" id="pie-chart"></div>
+          <div class="pie-legend" id="pie-legend"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail Tab -->
+    <div id="tab-detail" class="tab-content" style="display:none">
+      <div class="detail-controls">
+        <input type="text" id="filter-input" placeholder="🔍 搜索网址或标题...">
+        <select id="filter-cat">
+          <option value="">全部类别</option>
+        </select>
+      </div>
+      <div class="detail-list" id="detail-list"></div>
+    </div>
+
+    <!-- Trace Tab -->
+    <div id="tab-trace" class="tab-content" style="display:none">
+      <div id="trace-status">
+        <div class="trace-status-line">
+          <span class="trace-label">采集器状态:</span>
+          <span id="trace-collector-status" class="trace-value">检查中...</span>
+        </div>
+        <div class="trace-status-line">
+          <span class="trace-label">最后活动:</span>
+          <span id="trace-last-activity" class="trace-value">—</span>
+        </div>
+        <div class="trace-status-line">
+          <span class="trace-label">今日采集:</span>
+          <span id="trace-today-count" class="trace-value">0 条</span>
+        </div>
+        <div class="trace-status-line">
+          <span class="trace-label">四道防线:</span>
+          <span id="trace-defense-summary" class="trace-value">—</span>
+        </div>
+        <button id="btn-fetch-trace" class="btn">📡 拉取底座痕迹时间线</button>
+      </div>
+      <div id="trace-timeline" style="display:none">
+        <h4>📜 底座痕迹时间线</h4>
+        <div id="trace-list"></div>
+      </div>
+    </div>
+
+    <!-- Defense Tab -->
+    <div id="tab-defense" class="tab-content" style="display:none">
+      <!-- Overall Status -->
+      <div id="defense-overall" class="defense-overall">
+        <div class="defense-overall-icon" id="defense-overall-icon">🛡️</div>
+        <div class="defense-overall-text">
+          <span id="defense-overall-status">正在检查...</span>
+          <span id="defense-overall-time" class="defense-overall-time"></span>
+        </div>
+        <button id="btn-defense-refresh" class="btn btn-small">🔄 刷新</button>
+      </div>
+
+      <!-- 四墙卡片 -->
+      <div class="defense-walls" id="defense-walls">
+        <!-- 防线一：网络守卫 -->
+        <div class="defense-card" id="wall-card-1">
+          <div class="defense-card-header">
+            <span class="defense-card-icon">🌐</span>
+            <span class="defense-card-title">防线一 · 网络强制执行防火墙</span>
+            <span class="defense-card-status" id="wall-1-status">—</span>
+          </div>
+          <div class="defense-card-body" id="wall-1-body">
+            <div class="defense-stat">
+              <span class="defense-stat-label">防火墙阻断</span>
+              <span class="defense-stat-value" id="wall-1-blocks">0</span>
+            </div>
+            <div class="defense-stat">
+              <span class="defense-stat-label">告警累计</span>
+              <span class="defense-stat-value" id="wall-1-alerts">0</span>
+            </div>
+            <div class="defense-stat">
+              <span class="defense-stat-label">待处理</span>
+              <span class="defense-stat-value" id="wall-1-pending">0</span>
+            </div>
+            <div class="defense-stat">
+              <span class="defense-stat-label">防火墙状态</span>
+              <span class="defense-stat-value" id="wall-1-firewall">—</span>
+            </div>
+            <div class="defense-stat">
+              <span class="defense-stat-label">白名单进程</span>
+              <span class="defense-stat-value" id="wall-1-whitelist">—</span>
+            </div>
+          </div>
+          <div class="defense-card-log" id="wall-1-log" style="display:none">
+            <!-- 最近告警列表 -->
+          </div>
+        </div>
+
+        <!-- 防线二：恶意代码过滤 -->
+        <div class="defense-card" id="wall-card-2">
+          <div class="defense-card-header">
+            <span class="defense-card-icon">🦠</span>
+            <span class="defense-card-title">防线二 · 恶意代码过滤</span>
+            <span class="defense-card-status" id="wall-2-status">—</span>
+          </div>
+          <div class="defense-card-body" id="wall-2-body">
+            <div class="defense-stat">
+              <span class="defense-stat-label">命中次数</span>
+              <span class="defense-stat-value" id="wall-2-hits">0</span>
+            </div>
+            <div class="defense-stat">
+              <span class="defense-stat-label">威胁情报源</span>
+              <span class="defense-stat-value" id="wall-2-source">URLhaus</span>
+            </div>
+            <div class="defense-stat">
+              <span class="defense-stat-label">已知恶意指纹</span>
+              <span class="defense-stat-value" id="wall-2-signatures">145,799+</span>
+            </div>
+          </div>
+          <div class="defense-card-log" id="wall-2-log" style="display:none">
+            <!-- 最近告警列表 -->
+          </div>
+        </div>
+
+        <!-- 防线三：设备金库 -->
+        <div class="defense-card" id="wall-card-3">
+          <div class="defense-card-header">
+            <span class="defense-card-icon">🔐</span>
+            <span class="defense-card-title">防线三 · 设备金库</span>
+            <span class="defense-card-status" id="wall-3-status">—</span>
+          </div>
+          <div class="defense-card-body" id="wall-3-body">
+            <div class="defense-stat">
+              <span class="defense-stat-label">加密算法</span>
+              <span class="defense-stat-value" id="wall-3-algo">AES-256-CBC</span>
+            </div>
+            <div class="defense-stat">
+              <span class="defense-stat-label">硬件绑定</span>
+              <span class="defense-stat-value" id="wall-3-hw">✅</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 防线四：导出签名 -->
+        <div class="defense-card" id="wall-card-4">
+          <div class="defense-card-header">
+            <span class="defense-card-icon">📝</span>
+            <span class="defense-card-title">防线四 · 导出签名验证</span>
+            <span class="defense-card-status" id="wall-4-status">—</span>
+          </div>
+          <div class="defense-card-body" id="wall-4-body">
+            <div class="defense-stat">
+              <span class="defense-stat-label">签名服务器</span>
+              <span class="defense-stat-value" id="wall-4-server">—</span>
+            </div>
+            <div class="defense-stat">
+              <span class="defense-stat-label">协议版本</span>
+              <span class="defense-stat-value" id="wall-4-protocol">LH-EXPORT-BIND-v1.0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 网络告警详情 -->
+      <div id="defense-alerts-section" class="defense-alerts-section" style="display:none">
+        <div class="defense-alerts-header">
+          <span>⚠️ 最近网络拦截告警</span>
+          <button id="btn-alerts-dismiss" class="btn btn-tiny">清除告警</button>
+        </div>
+        <div id="defense-alerts-list" class="defense-alerts-list">
+          <!-- dynamically filled -->
+        </div>
+      </div>
+    </div>
+
+    <!-- About Tab -->
+    <div id="tab-about" class="tab-content" style="display:none">
+      <div class="about-section">
+        <div class="about-header">
+          <div class="about-icon">⚡</div>
+          <h2>龍魂 · 浏览器史官 v2.1</h2>
+          <p class="about-subtitle">一件武器，不是一件商品</p>
+        </div>
+
+        <div class="about-divider"></div>
+
+        <div class="about-zh">
+          <h3>同行者支持</h3>
+          <p>這不是乞討，是在茫茫數字荒原上，立下一塊路碑。同行者，自會相認。</p>
+          <p>把真金白銀換成人民幣的那一刻，就不再是旁觀者——而是跨越了國界，用行動來敲門的同路人。</p>
+          <p style="margin-top:0.8rem;color:var(--gold);font-size:0.8rem;">微信 · 支付宝 · 数字人民币 → <a href="https://uid9622.cn/browser-historian/" target="_blank" style="color:var(--gold);">uid9622.cn/browser-historian</a></p>
+        </div>
+
+        <div class="about-divider"></div>
+
+        <div class="about-en">
+          <h3>To Our Global Companions</h3>
+          <p>This tool is a weapon for digital sovereignty, not a commodity for sale. It is free for everyone, everywhere, to use and to audit.</p>
+          <p>If you recognize the path we are walking — returning data ownership to the people, building technology with a conscience — and you wish to help pave this road, you may do so.</p>
+          <p>Your support, in any amount, is a testament to your conviction. For practical support from overseas, please use any service to convert your currency to RMB (CNY). The fact that you overcome this friction is, in itself, a proof of your sincerity.</p>
+          <p>If you have nothing to give, take it anyway. Use it, protect yourself, and stand up. That is the ultimate victory.</p>
+        </div>
+
+        <div class="about-divider"></div>
+
+        <p class="about-confirm">#CONFIRM🌌9622-ONLY-ONCE🧬LK9X-772Z</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span class="dot">●</span>
+    <span>数据<span class="local">本地</span>处理 · 不传云端</span>
+    <span>|</span>
+    <span>創建者: 诸葛鑫 (UID9622)</span>
+    <span>|</span>
+    <span>龍魂 v2.0</span>
+  </div>
+
+  <!-- Export Modal -->
+  <div id="export-modal" class="modal" style="display:none">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>📥 导出选项</h3>
+        <p class="modal-sub">数据永远在你本地，导出位置由你决定。</p>
+      </div>
+      <div class="modal-body">
+        <label class="option-row" for="export-training">
+          <input type="checkbox" id="export-training">
+          <span class="option-text">
+            标记为<strong>本地模型训练原料</strong>
+            <small>仅在自己设备上用于训练本地模型；不会自动上传，别人看不到。</small>
+          </span>
+        </label>
+        <label class="option-row" for="export-include-meta">
+          <input type="checkbox" id="export-include-meta" checked>
+          <span class="option-text">
+            包含分类元数据
+            <small>导出每个网址的分类、匹配规则、访问次数等。</small>
+          </span>
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button id="btn-export-cancel" class="btn">取消</button>
+        <button id="btn-export-confirm" class="btn btn-primary">选择保存位置…</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
