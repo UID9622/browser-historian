@@ -1,5 +1,11 @@
 # 龍魂 · 浏览器史官 v2.1
 
+[![License](https://img.shields.io/badge/license-MulanPSL%20v2%20%7C%20CC%20BY--NC--SA%204.0-green)](LICENSE)
+[![Stars](https://img.shields.io/github/stars/UID9622/browser-historian?style=social)](https://github.com/UID9622/browser-historian/stargazers)
+[![Issues](https://img.shields.io/github/issues/UID9622/browser-historian)](https://github.com/UID9622/browser-historian/issues)
+[![Last Commit](https://img.shields.io/github/last-commit/UID9622/browser-historian)](https://github.com/UID9622/browser-historian/commits)
+
+
 > DNA: #龍芯⚡️丙午·乙未·乙未·申时·☰乾-BROWSER-HISTORIAN-v2.1
 > 创建者: 诸葛鑫 (UID9622)
 > 协议: CC BY-NC-SA 4.0
